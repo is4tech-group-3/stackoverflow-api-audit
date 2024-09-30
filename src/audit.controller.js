@@ -47,6 +47,7 @@ export const getAudits = async (req, res) => {
     }
 
     const audits = await Audit.find(query).skip(skips).limit(limitNumber)
+
     const totalAudits = await Audit.countDocuments(query)
     const totalPages = Math.ceil(totalAudits / limitNumber)
 
