@@ -14,7 +14,7 @@ export const createAudit = async (req, res) => {
 
 export const getAudits = async (req, res) => {
   try {
-    const { startDate, endDate, limit = 10, page = 1 } = req.query
+    const { startDate, endDate, limit = 10, page = 1, sortOrder = 'asc' } = req.query
     const limitNumber = parseInt(limit)
     const pageNumber = parseInt(page)
     const skips = limitNumber * (pageNumber - 1)
@@ -46,7 +46,9 @@ export const getAudits = async (req, res) => {
       }
     }
 
-    const audits = await Audit.find(query).skip(skips).limit(limitNumber)
+    const sort = { date_operation: sortOrder }
+
+    const audits = await Audit.find(query).skip(skips).limit(limitNumber).sort(sort)
 
     const totalAudits = await Audit.countDocuments(query)
     const totalPages = Math.ceil(totalAudits / limitNumber)
