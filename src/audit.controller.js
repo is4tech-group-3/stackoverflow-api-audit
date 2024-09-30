@@ -14,35 +14,51 @@ export const createAudit = async (req, res) => {
 
 export const getAudits = async (req, res) => {
   try {
-    const { startDate, endDate } = req.query
-    console.log(startDate, endDate)
+    const { startDate, endDate, limit = 10, page = 1 } = req.query
+    const limitNumber = parseInt(limit)
+    const pageNumber = parseInt(page)
+    const skips = limitNumber * (pageNumber - 1)
+
+    let query = {}
+
     if (startDate && endDate) {
-      const audits = await Audit.find({
+      query = {
         date_operation: {
           $gte: new Date(startDate),
           $lt: new Date(endDate)
         }
-      })
-      return res.status(200).json(audits)
+      }
     }
+
     if (startDate) {
-      const audits = await Audit.find({
+      query = {
         date_operation: {
           $gte: new Date(startDate)
         }
-      })
-      return res.status(200).json(audits)
+      }
     }
+
     if (endDate) {
-      const audits = await Audit.find({
+      query = {
         date_operation: {
           $lt: new Date(endDate)
         }
-      })
-      return res.status(200).json(audits)
+      }
     }
-    const audits = await Audit.find()
-    return res.status(200).json(audits)
+
+    const audits = await Audit.find(query).skip(skips).limit(limitNumber)
+
+    const totalAudits = await Audit.countDocuments(query)
+    const totalPages = Math.ceil(totalAudits / limitNumber)
+
+    return res.status(200).json({
+      audits,
+      pagination: {
+        totalAudits,
+        totalPages,
+        currentPage: pageNumber
+      }
+    })
   } catch (error) {
     return res.status(500).json({ message: error.message })
   }
