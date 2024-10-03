@@ -32,10 +32,10 @@ const auditSchema = new Schema({
     type: Date,
     default: Date.now
   },
-  username: {
+  email: {
     type: String,
     required: true,
-    maxlength: 20
+    maxlength: 50
   },
   user_id: {
     type: Number,
