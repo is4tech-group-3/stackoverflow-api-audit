@@ -25,8 +25,7 @@ const auditSchema = new Schema({
   },
   status_description: {
     type: String,
-    required: true,
-    maxlength: 20
+    required: true
   },
   date_operation: {
     type: Date,
