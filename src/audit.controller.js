@@ -2,7 +2,6 @@ import Audit from './audit.model.js'
 
 export const createAudit = async (req, res) => {
   try {
-    console.log(req.body)
     const audit = new Audit(req.body)
     await audit.save()
     return res.status(201).json(audit)
@@ -14,36 +13,34 @@ export const createAudit = async (req, res) => {
 
 export const getAudits = async (req, res) => {
   try {
-    const { startDate, endDate, limit = 10, page = 1, sortOrder = 'asc' } = req.query
+    const { startDate, endDate, limit = 10, page = 1, sortOrder = 'desc', entity, httpMethod } = req.query
     const limitNumber = parseInt(limit)
     const pageNumber = parseInt(page)
     const skips = limitNumber * (pageNumber - 1)
 
-    let query = {}
+    const query = {}
 
     if (startDate && endDate) {
-      query = {
-        date_operation: {
-          $gte: new Date(startDate),
-          $lt: new Date(endDate)
-        }
+      query.date_operation = {
+        $gte: new Date(startDate),
+        $lt: new Date(endDate)
+      }
+    } else if (startDate) {
+      query.date_operation = {
+        $gte: new Date(startDate)
+      }
+    } else if (endDate) {
+      query.date_operation = {
+        $lt: new Date(endDate)
       }
     }
 
-    if (startDate) {
-      query = {
-        date_operation: {
-          $gte: new Date(startDate)
-        }
-      }
+    if (entity) {
+      query.entity = entity
     }
 
-    if (endDate) {
-      query = {
-        date_operation: {
-          $lt: new Date(endDate)
-        }
-      }
+    if (httpMethod) {
+      query.http_method = httpMethod
     }
 
     const sort = { date_operation: sortOrder }
